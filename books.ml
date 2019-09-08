@@ -110,10 +110,10 @@ let yaml_to_string_exn (s: Yaml.value): string =
   | `String x -> x
   | _ -> failwith "Non-string yaml object passed to `yaml_to_string_exn`"
 
-let yaml_map (y: Yaml.value) ~(f:(Yaml.value -> 'a)): 'a list =
+let yaml_map_exn (y: Yaml.value) ~(f:(Yaml.value -> 'a)): 'a list =
   match y with
   | `A l -> List.map l ~f:f
-  | _ -> failwith "yaml_map was passed a non-array"
+  | _ -> failwith "yaml_map_exn was passed a non-array"
 
 let convert_connection_yaml = function
   | `A (a::b::[]) -> AuthorConnection (yaml_to_string_exn a, yaml_to_string_exn b)
@@ -126,7 +126,7 @@ let convert_book_yaml (y: Yaml.value): book =
     let dict = String.Map.of_alist_exn assoc_list in
     (match (String.Map.find dict "title", String.Map.find dict "author") with
     | (Some title_yaml, Some authors_yaml) ->
-        {author = yaml_map authors_yaml ~f:yaml_to_string_exn; title = yaml_to_string_exn title_yaml}
+        {author = yaml_map_exn authors_yaml ~f:yaml_to_string_exn; title = yaml_to_string_exn title_yaml}
     | _ -> failwith failure_message)
   | _ -> failwith failure_message
 
@@ -136,7 +136,7 @@ let parse_input (): (connection list * book list) =
     let dict = String.Map.of_alist_exn assoc_list in
     let connections_yaml = String.Map.find_exn dict "connections" in
     let books_yaml = String.Map.find_exn dict "books" in
-    (yaml_map connections_yaml ~f:convert_connection_yaml, yaml_map books_yaml ~f:convert_book_yaml)
+    (yaml_map_exn connections_yaml ~f:convert_connection_yaml, yaml_map_exn books_yaml ~f:convert_book_yaml)
   | _ -> failwith "Expected an object at top level"
 
 
@@ -144,6 +144,11 @@ let print_book {author; title}: unit =
   let authors = String.concat ~sep:", " author in
   Printf.printf "%s by %s\n" title authors
 
+let default_connections = [
+  FunctionConnection (fun x y -> 100.0 *. (Float.of_int (shared_authors_count x y)));
+]
+
 let () =
   let connections, books = parse_input () in
-   List.iter ~f:print_book @@ find_ordering books connections
+  let all_connections = connections @ default_connections in
+  List.iter ~f:print_book @@ find_ordering books all_connections
