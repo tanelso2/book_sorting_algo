@@ -1,0 +1,3 @@
+(executable
+  (name books)
+  (libraries core extlib re))
