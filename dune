@@ -1,3 +1,3 @@
 (executable
   (name books)
-  (libraries core extlib re))
+  (libraries core extlib re yaml yaml.unix))
