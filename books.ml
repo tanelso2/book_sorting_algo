@@ -103,6 +103,8 @@ let test_books = [
 ]
 
 (* TODO: Put all this parsing logic in a different module *)
+(* TODO: Ok yaml might have been a mistake here. How about just two files, "books.csv" and "connections.csv" and each line is a book or connection *)
+(* TODO: Shorthand (string, string list) Map.t for author -> title bindings? *)
 let input_file = "input.yaml"
 
 let yaml_to_string_exn (s: Yaml.value): string =
@@ -126,7 +128,10 @@ let convert_book_yaml (y: Yaml.value): book =
     let dict = String.Map.of_alist_exn assoc_list in
     (match (String.Map.find dict "title", String.Map.find dict "author") with
     | (Some title_yaml, Some authors_yaml) ->
-        {author = yaml_map_exn authors_yaml ~f:yaml_to_string_exn; title = yaml_to_string_exn title_yaml}
+        {
+          author = yaml_map_exn authors_yaml ~f:yaml_to_string_exn;
+          title = yaml_to_string_exn title_yaml
+        }
     | _ -> failwith failure_message)
   | _ -> failwith failure_message
 
