@@ -147,7 +147,7 @@ let parse_input (): (connection list * book list) =
 
 let print_book {author; title}: unit =
   let authors = String.concat ~sep:", " author in
-  Printf.printf "%s by %s\n" title authors
+  Printf.printf "%s|%s\n" title authors
 
 let default_connections = [
   FunctionConnection (fun x y -> 100.0 *. (Float.of_int (shared_authors_count x y)));
@@ -156,4 +156,5 @@ let default_connections = [
 let () =
   let connections, books = parse_input () in
   let all_connections = connections @ default_connections in
-  List.iter ~f:print_book @@ find_ordering books all_connections
+  let ordering = find_ordering books all_connections in
+  List.iter ~f:print_book ordering
