@@ -1,0 +1,13 @@
+connections:
+- - George Orwell
+  - Aldous Huxley
+- - JK Rowling
+  - George RR Martin
+books:
+- title: Animal Farm
+  author:
+  - George Orwell
+- title: Good Omens
+  author:
+  - Terry Pratchett
+  - Neil Gaiman
